@@ -12,33 +12,68 @@ public class PlayerController : MonoBehaviour
     [Header("정보")]
     public bool isGrounded;
 
+    [Header("마우스")]
+    public float mouseSensitivity = 2f;
+    public Camera playerCamera;
+
+
+
     private CharacterController controller;
 
     private Vector3 velocity;
 
-    
+    private float xRotation = 0f;
 
-    // Start is called before the first frame update
     void Start()
     {
         controller = GetComponent<CharacterController>();
+        Cursor.lockState = CursorLockMode.Locked;   //마우스 잠금
+       
     }
 
-    // Update is called once per frame
     void Update()
     {
+        MovePlayer();
+        RotateCamera();
+    }
+
+    void MovePlayer()
+    {
         isGrounded = controller.isGrounded;
+        if (isGrounded && velocity.y < 0)
+        {
+            velocity.y = -2f; // 땅에 닿으면 속도 초기화
+        }
+
+       
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        Vector3 move = new Vector3(x, 0, z);
+        Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * speed * Time.deltaTime);
 
+        
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = jumpPower;
         }
+
+        
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
+
+
+    void RotateCamera()
+    {
+        float mouseX = Input.GetAxis("Mouse x") * mouseSensitivity;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
+
+        xRotation -= mouseY;
+        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+
+        playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
+        transform.Rotate(Vector3.up * mouseX);        
+    }
 }
+
