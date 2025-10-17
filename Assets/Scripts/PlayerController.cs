@@ -1,34 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("플레이어 정보")]
+    [Header("플레이어 설정")]
     public float speed = 5f;
     public float jumpPower = 5f;
     public float gravity = -9.81f;
 
-    [Header("정보")]
-    public bool isGrounded;
-
-    [Header("마우스")]
+    [Header("카메라 설정")]
+    public Camera playerCamera; // 1인칭 시점 카메라
     public float mouseSensitivity = 2f;
-    public Camera playerCamera;
-
-
 
     private CharacterController controller;
-
     private Vector3 velocity;
+    private bool isGrounded;
 
-    private float xRotation = 0f;
+    private float xRotation = 0f; // 위아래 회전값
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-        Cursor.lockState = CursorLockMode.Locked;   //마우스 잠금
-       
+
+        // 마우스 커서 고정
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
@@ -40,40 +38,38 @@ public class PlayerController : MonoBehaviour
     void MovePlayer()
     {
         isGrounded = controller.isGrounded;
+
         if (isGrounded && velocity.y < 0)
         {
-            velocity.y = -2f; // 땅에 닿으면 속도 초기화
+            velocity.y = -2f;
         }
 
-       
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
         Vector3 move = transform.right * x + transform.forward * z;
         controller.Move(move * speed * Time.deltaTime);
 
-        
         if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = jumpPower;
         }
 
-        
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
 
-
     void RotateCamera()
     {
-        float mouseX = Input.GetAxis("Mouse x") * mouseSensitivity;
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity;
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity;
 
         xRotation -= mouseY;
-        xRotation = Mathf.Clamp(xRotation, -90f, 90f);
+        xRotation = Mathf.Clamp(xRotation, -80f, 80f); // 위아래 제한
 
+        // 카메라 회전
         playerCamera.transform.localRotation = Quaternion.Euler(xRotation, 0f, 0f);
-        transform.Rotate(Vector3.up * mouseX);        
+        transform.Rotate(Vector3.up * mouseX);
     }
 }
 
