@@ -15,14 +15,22 @@ public class Bullet : MonoBehaviour
     {
         rb = GetComponent<Rigidbody>();
         rb.velocity = transform.forward * speed;
+        rb.isKinematic = false;
+       
+
+        Collider col = GetComponent<Collider>();
+        if (col != null)
+            col.isTrigger = true;
+
+        rb.velocity = transform.forward * speed;
         Destroy(gameObject, lifeTime);
-        
+
     }
 
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
         //EnemyHitPart 찾기
-        EnemyHitPart part = collision.collider.GetComponent<EnemyHitPart>();
+        EnemyHitPart part = other.GetComponent<EnemyHitPart>();
 
         if (part != null && part.enemy != null)
         {
@@ -32,7 +40,7 @@ public class Bullet : MonoBehaviour
             switch (part.hitType)
             {
                 case HitType.Head:
-                    damage = (int)(baseDamage * 2f);          //머리 맞출 시 데미지 x2
+                    damage = (int)(baseDamage * 4f);          //머리 맞출 시 데미지 x4
                     break;
                 case HitType.Body:
                     damage = (int)(baseDamage * 1f);             //몸 맟술 시 데미지 x1

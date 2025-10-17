@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class Gun : MonoBehaviour
@@ -35,14 +36,22 @@ public class Gun : MonoBehaviour
         Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         Vector3 direction;
 
-        if (Physics.Raycast(ray, out RaycastHit hitInfo))
+        RaycastHit hitInfo;
+
+        if (Physics.Raycast(ray, out hitInfo)) //out 키워드로 RaycastHit 넘기기
         {
-            // 조준 지점 계산
-            direction = (hitInfo.point - firePoint.position).normalized;
+            // Ray가 부딪힌 오브젝트의 좌표
+            if (Vector3.Distance(firePoint.position, hitInfo.point) < 1f)
+            {
+                direction = ray.direction;
+            }
+            else
+            {
+                direction = (hitInfo.point - firePoint.position).normalized;
+            }
         }
         else
         {
-            // 맞은 게 없으면 멀리 쏘기
             direction = ray.direction;
         }
 
